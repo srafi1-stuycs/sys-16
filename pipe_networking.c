@@ -14,12 +14,12 @@ int server_handshake(int *to_client) {
     int upstream_success = mkfifo("upstream_fifo", 0644);
     if (upstream_success < 0) {
         printf("%s\n", strerror(errno));
-    } else {
-        int upstream_fd = open("upstream_fifo", O_RDONLY);
-        char buffer[256];
-        read(upstream_fd, buffer, 256);
     }
-    return 0;
+    int upstream_fd = open("upstream_fifo", O_RDONLY);
+    char buffer[256];
+    read(upstream_fd, buffer, 256);
+    *to_client = open(buffer, O_WRONLY);
+    return upstream_fd;
 }
 
 
@@ -33,5 +33,14 @@ Sets *to_server to the file descriptor for the upstream pipe.
 returns the file descriptor for the downstream pipe.
 =========================*/
 int client_handshake(int *to_server) {
-    return 0;
+    char s[256];
+    sprintf(s, "%d", getpid());
+    int success = mkfifo(s, 0644);
+    if (success < 0) {
+        printf("%s\n", strerror(errno));
+    }
+    *to_server = open("upstream_fifo", O_WRONLY);
+    write(*to_server, s, sizeof(s));
+    int downstream_fd = open(s, O_RDONLY);
+    return downstream_fd;
 }
