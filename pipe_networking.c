@@ -19,6 +19,13 @@ int server_handshake(int *to_client) {
     char buffer[256];
     read(upstream_fd, buffer, 256);
     *to_client = open(buffer, O_WRONLY);
+    if (!fork()) {
+        char *args[3];
+        args[0] = "rm";
+        args[1] = "upstream_fifo";
+        args[2] = 0;
+        execvp(args[0], args);
+    }
     return upstream_fd;
 }
 
@@ -42,5 +49,12 @@ int client_handshake(int *to_server) {
     *to_server = open("upstream_fifo", O_WRONLY);
     write(*to_server, s, sizeof(s));
     int downstream_fd = open(s, O_RDONLY);
+    if (!fork()) {
+        char *args[3];
+        args[0] = "rm";
+        args[1] = s;
+        args[2] = 0;
+        execvp(args[0], args);
+    }
     return downstream_fd;
 }

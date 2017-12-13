@@ -20,11 +20,4 @@ int main() {
   // remove private pipe
   close(to_server);
   close(from_server);
-  char *args[3];
-  args[0] = "rm";
-  char pid[256];
-  sprintf(pid, "%d", getpid());
-  args[1] = pid;
-  args[2] = 0;
-  execvp(args[0], args);
 }

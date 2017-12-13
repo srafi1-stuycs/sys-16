@@ -22,9 +22,4 @@ int main() {
   // remove upstream pipe
   close(to_client);
   close(from_client);
-  char *args[3];
-  args[0] = "rm";
-  args[1] = "upstream_fifo";
-  args[2] = 0;
-  execvp(args[0], args);
 }
